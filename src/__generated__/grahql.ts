@@ -32,12 +32,24 @@ export type Mutation = {
 
 export type MutationCreateRoomArgs = {
   name: Scalars['String'];
+  offer: OfferInput;
 };
 
 
 export type MutationLeaveRoomArgs = {
   name: Scalars['String'];
   uuid: Scalars['String'];
+};
+
+export type Offer = {
+  __typename?: 'Offer';
+  sdp?: Maybe<Scalars['String']>;
+  type: RtcSdpType;
+};
+
+export type OfferInput = {
+  sdp?: InputMaybe<Scalars['String']>;
+  type: RtcSdpType;
 };
 
 export type ParticiantAction = {
@@ -71,6 +83,13 @@ export type QueryRoomArgs = {
   uuid: Scalars['String'];
 };
 
+export enum RtcSdpType {
+  Answer = 'answer',
+  Offer = 'offer',
+  Pranswer = 'pranswer',
+  Rollback = 'rollback'
+}
+
 export type Room = {
   __typename?: 'Room';
   participants: Array<Participant>;
@@ -92,7 +111,9 @@ export type SubscriptionSubscribeToParticipantsArgs = {
   uuid: Scalars['String'];
 };
 
-export type CreateRoomMutationVariables = Exact<{ [key: string]: never; }>;
+export type CreateRoomMutationVariables = Exact<{
+  offer: OfferInput;
+}>;
 
 
 export type CreateRoomMutation = { __typename?: 'Mutation', room: { __typename?: 'Room', uuid: string } };

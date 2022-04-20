@@ -1,15 +1,14 @@
 import { v4 } from "uuid";
-import { Participant } from "./Participants";
+import type { Offer } from "./Offer";
+import type { Participant } from "./Participants";
 
 export class Room {
   uuid: string;
+  offer: Offer;
   participants: Participant[] = [];
 
-  constructor() {
+  constructor(offer: Offer) {
     this.uuid = v4();
-  }
-
-  static New(): Room {
-    return new Room();
+    this.offer = offer;
   }
 }

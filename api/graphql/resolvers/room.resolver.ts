@@ -2,6 +2,7 @@ import { builder } from "../builder";
 import { ParticiantAction, Participant } from "../models/Participants";
 import { Room } from "../models/Room";
 import { RoomAction } from "../models/RoomAction";
+import { OfferInput, OfferObject } from "./offer.resolver";
 import {
   ParticiantActionObject,
   ParticipantObject,
@@ -22,9 +23,10 @@ builder.mutationField("createRoom", (t) =>
     type: RoomObject,
     args: {
       name: t.arg.string(),
+      offer: t.arg({ type: OfferInput }),
     },
-    resolve: async (_root, { name }, { rooms }) => {
-      const room = new Room();
+    resolve: async (_root, { name, offer }, { rooms }) => {
+      const room = new Room({ type: offer.type, sdp: offer.sdp ?? undefined });
       let participant = new Participant(name);
       room.participants.push(participant);
       rooms.set(room.uuid, room);

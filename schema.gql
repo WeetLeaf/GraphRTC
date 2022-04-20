@@ -6,11 +6,21 @@ enum Action {
 scalar Date
 
 type Mutation {
-  createRoom(name: String!): Room!
+  createRoom(name: String!, offer: OfferInput!): Room!
   leaveRoom(name: String!, uuid: String!): Room
 
   """Mutation to trigger subscription serverStatus !"""
   testSubscription: Boolean! @deprecated(reason: "Use only for testing")
+}
+
+type Offer {
+  sdp: String
+  type: RTCSdpType!
+}
+
+input OfferInput {
+  sdp: String
+  type: RTCSdpType!
 }
 
 type ParticiantAction {
@@ -28,6 +38,13 @@ type Query {
   joinRoom(name: String!, uuid: String!): Room
   ping: String!
   room(uuid: String!): Room
+}
+
+enum RTCSdpType {
+  answer
+  offer
+  pranswer
+  rollback
 }
 
 type Room {
