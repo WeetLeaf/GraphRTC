@@ -92,6 +92,7 @@ export enum RtcSdpType {
 
 export type Room = {
   __typename?: 'Room';
+  offer: Offer;
   participants: Array<Participant>;
   uuid: Scalars['String'];
 };
@@ -117,6 +118,13 @@ export type CreateRoomMutationVariables = Exact<{
 
 
 export type CreateRoomMutation = { __typename?: 'Mutation', room: { __typename?: 'Room', uuid: string } };
+
+export type GetRoomQueryVariables = Exact<{
+  uuid: Scalars['String'];
+}>;
+
+
+export type GetRoomQuery = { __typename?: 'Query', room?: { __typename?: 'Room', uuid: string, participants: Array<{ __typename?: 'Participant', uuid: string, name: string }>, offer: { __typename?: 'Offer', type: RtcSdpType, sdp?: string | null } } | null };
 
 export type OnSubscriptionWorksSubscriptionVariables = Exact<{ [key: string]: never; }>;
 

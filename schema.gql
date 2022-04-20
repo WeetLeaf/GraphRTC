@@ -48,6 +48,7 @@ enum RTCSdpType {
 }
 
 type Room {
+  offer: Offer!
   participants: [Participant!]!
   uuid: String!
 }

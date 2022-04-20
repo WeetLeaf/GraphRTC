@@ -26,7 +26,7 @@ export const CreateRoom = () => {
 
   const { peerConnection } = useRTC();
 
-  const [createRoom, { data, loading, error }] = useMutation<
+  const [createRoom, { loading }] = useMutation<
     CreateRoomMutation,
     CreateRoomMutationVariables
   >(CREATE_ROOM, {

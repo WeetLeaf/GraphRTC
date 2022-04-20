@@ -12,6 +12,7 @@ export const RoomObject = builder.objectType(Room, {
   name: "Room",
   fields: (t) => ({
     uuid: t.exposeString("uuid"),
+    offer: t.expose("offer", { type: OfferObject }),
     participants: t.expose("participants", {
       type: [ParticipantObject],
     }),
