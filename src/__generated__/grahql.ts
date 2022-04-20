@@ -30,6 +30,11 @@ export type Mutation = {
 };
 
 
+export type MutationCreateRoomArgs = {
+  name: Scalars['String'];
+};
+
+
 export type MutationLeaveRoomArgs = {
   name: Scalars['String'];
   uuid: Scalars['String'];
@@ -86,6 +91,11 @@ export type Subscription = {
 export type SubscriptionSubscribeToParticipantsArgs = {
   uuid: Scalars['String'];
 };
+
+export type CreateRoomMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CreateRoomMutation = { __typename?: 'Mutation', room: { __typename?: 'Room', uuid: string } };
 
 export type OnSubscriptionWorksSubscriptionVariables = Exact<{ [key: string]: never; }>;
 

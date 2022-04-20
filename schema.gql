@@ -6,7 +6,7 @@ enum Action {
 scalar Date
 
 type Mutation {
-  createRoom: Room!
+  createRoom(name: String!): Room!
   leaveRoom(name: String!, uuid: String!): Room
 
   """Mutation to trigger subscription serverStatus !"""

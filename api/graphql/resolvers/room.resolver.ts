@@ -20,9 +20,13 @@ export const RoomObject = builder.objectType(Room, {
 builder.mutationField("createRoom", (t) =>
   t.field({
     type: RoomObject,
-    args: {},
-    resolve: async (_root, _args, { rooms }) => {
+    args: {
+      name: t.arg.string(),
+    },
+    resolve: async (_root, { name }, { rooms }) => {
       const room = new Room();
+      let participant = new Participant(name);
+      room.participants.push(participant);
       rooms.set(room.uuid, room);
       return room;
     },
