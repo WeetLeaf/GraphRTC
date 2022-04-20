@@ -13,8 +13,15 @@ export type Scalars = {
   Date: any;
 };
 
+export enum Action {
+  Join = 'JOIN',
+  Leave = 'LEAVE'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createRoom: Room;
+  leaveRoom?: Maybe<Room>;
   /**
    * Mutation to trigger subscription serverStatus !
    * @deprecated Use only for testing
@@ -22,10 +29,47 @@ export type Mutation = {
   testSubscription: Scalars['Boolean'];
 };
 
+
+export type MutationLeaveRoomArgs = {
+  name: Scalars['String'];
+  uuid: Scalars['String'];
+};
+
+export type ParticiantAction = {
+  __typename?: 'ParticiantAction';
+  action: Action;
+  participant: Participant;
+};
+
+export type Participant = {
+  __typename?: 'Participant';
+  name: Scalars['String'];
+  uuid: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   isAlive: Scalars['Boolean'];
+  joinRoom?: Maybe<Room>;
   ping: Scalars['String'];
+  room?: Maybe<Room>;
+};
+
+
+export type QueryJoinRoomArgs = {
+  name: Scalars['String'];
+  uuid: Scalars['String'];
+};
+
+
+export type QueryRoomArgs = {
+  uuid: Scalars['String'];
+};
+
+export type Room = {
+  __typename?: 'Room';
+  participants: Array<Participant>;
+  uuid: Scalars['String'];
 };
 
 export type Subscription = {
@@ -35,6 +79,12 @@ export type Subscription = {
    * @deprecated Use only for testing
    */
   serverStatus: Scalars['Float'];
+  subscribeToParticipants: ParticiantAction;
+};
+
+
+export type SubscriptionSubscribeToParticipantsArgs = {
+  uuid: Scalars['String'];
 };
 
 export type OnSubscriptionWorksSubscriptionVariables = Exact<{ [key: string]: never; }>;

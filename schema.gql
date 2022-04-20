@@ -1,13 +1,38 @@
+enum Action {
+  JOIN
+  LEAVE
+}
+
 scalar Date
 
 type Mutation {
+  createRoom: Room!
+  leaveRoom(name: String!, uuid: String!): Room
+
   """Mutation to trigger subscription serverStatus !"""
   testSubscription: Boolean! @deprecated(reason: "Use only for testing")
 }
 
+type ParticiantAction {
+  action: Action!
+  participant: Participant!
+}
+
+type Participant {
+  name: String!
+  uuid: String!
+}
+
 type Query {
   isAlive: Boolean!
+  joinRoom(name: String!, uuid: String!): Room
   ping: String!
+  room(uuid: String!): Room
+}
+
+type Room {
+  participants: [Participant!]!
+  uuid: String!
 }
 
 type Subscription {
@@ -15,4 +40,8 @@ type Subscription {
   Subscription to server status, trigger using mutation `testSubscription` 
   """
   serverStatus: Float! @deprecated(reason: "Use only for testing")
+  subscribeToParticipants(
+    """Room uuid"""
+    uuid: String!
+  ): ParticiantAction!
 }

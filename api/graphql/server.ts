@@ -12,6 +12,7 @@ import { WebSocketServer } from "ws";
 import { CustomPubSub } from "../utils/pubsub.utils";
 import { schema } from "./schema";
 import { HandlerContext, HttpContext, SubscriptionsContext } from "./types";
+import { rooms } from "./services/cache.service";
 
 const pubsub = new CustomPubSub();
 
@@ -34,6 +35,7 @@ export async function configGraphQLServer(
       context: (): SubscriptionsContext => {
         return {
           pubsub,
+          rooms,
         };
       },
     },
@@ -63,7 +65,7 @@ export async function configGraphQLServer(
       req,
       res,
     }: HandlerContext): Omit<HttpContext, "dataSources"> => {
-      return { req, res, pubsub };
+      return { req, res, pubsub, rooms };
     },
   });
   await server.start();
