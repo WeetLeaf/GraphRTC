@@ -1,0 +1,10 @@
+overwrite: true
+schema: "./schema.gql"
+
+generates:
+  src/__generated__/grahql.ts:
+    documents:
+      - ./src/**/!(*.d).{ts,tsx}"
+    plugins:
+      - "typescript"
+      - "typescript-operations"

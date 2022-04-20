@@ -7,19 +7,15 @@ let apolloClient: ApolloClient<any> = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-const GQL_ENDPOINT = "/api/graphql";
-
 if (typeof window !== "undefined") {
-  const { origin } = window.location;
-
   const wsLink = new GraphQLWsLink(
     createClient({
-      url: origin.concat(GQL_ENDPOINT),
+      url: process.env.NEXT_PUBLIC_API_WEBSOCKET_ENDPOINT,
     })
   );
 
   const httpLink = new HttpLink({
-    uri: origin.concat(GQL_ENDPOINT),
+    uri: process.env.NEXT_PUBLIC_API_ENDPOINT,
   });
 
   const splitLink = split(

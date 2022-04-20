@@ -1,0 +1,18 @@
+scalar Date
+
+type Mutation {
+  """Mutation to trigger subscription serverStatus !"""
+  testSubscription: Boolean! @deprecated(reason: "Use only for testing")
+}
+
+type Query {
+  isAlive: Boolean!
+  ping: String!
+}
+
+type Subscription {
+  """
+  Subscription to server status, trigger using mutation `testSubscription` 
+  """
+  serverStatus: Float! @deprecated(reason: "Use only for testing")
+}
