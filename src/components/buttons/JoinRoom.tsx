@@ -47,6 +47,7 @@ export const JoinRoom = () => {
   >(GET_ROOM);
 
   const getOffer = useCallback(async () => {
+    if (!data) return;
     if (!data?.room) {
       toast.closeAll();
       toast({
