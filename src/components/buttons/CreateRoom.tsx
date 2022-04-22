@@ -3,11 +3,9 @@ import { useToast } from "@chakra-ui/react";
 import { gql } from "apollo-server-core";
 import { useRouter } from "next/router";
 import React from "react";
-import { useRTC } from "../../contexts/rtc.context";
 import {
   CreateRoomMutation,
-  CreateRoomMutationVariables,
-  RtcSdpType,
+  CreateRoomMutationVariables
 } from "../../__generated__/grahql";
 
 const CREATE_ROOM = gql`
@@ -53,15 +51,4 @@ export const CreateRoom = () => {
   );
 };
 
-export const mapTypeOffer = (type: RTCSdpType): RtcSdpType => {
-  switch (type) {
-    case "offer":
-      return RtcSdpType.Offer;
-    case "answer":
-      return RtcSdpType.Answer;
-    case "pranswer":
-      return RtcSdpType.Pranswer;
-    case "rollback":
-      return RtcSdpType.Rollback;
-  }
-};
+

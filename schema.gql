@@ -45,6 +45,8 @@ type Room {
 }
 
 type Subscription {
+  isConnectionReady: Boolean!
+
   """
   Subscription to server status, trigger using mutation `testSubscription` 
   """

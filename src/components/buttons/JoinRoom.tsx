@@ -2,7 +2,7 @@ import { Input } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { Offer } from "../../__generated__/grahql";
-import { mapTypeOffer } from "./CreateRoom";
+import { mapTypeOffer } from "../../utils/mapTypeOffer";
 
 type FormType = {
   uuid: string;
@@ -32,11 +32,4 @@ export const JoinRoom = () => {
       </button>
     </div>
   );
-};
-
-const mapOffer = (offer: Offer): RTCSessionDescriptionInit => {
-  return {
-    type: mapTypeOffer(offer.type),
-    sdp: offer.sdp ?? undefined,
-  };
 };

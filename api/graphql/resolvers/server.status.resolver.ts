@@ -35,3 +35,17 @@ builder.mutationField("testSubscription", (t) =>
     },
   })
 );
+
+builder.subscriptionField("isConnectionReady", (t) =>
+  t.boolean({
+    subscribe: (_, _args, { pubsub }) => {
+      console.log("subscribe");
+      setTimeout(() => {
+        console.log("isReady");
+        pubsub.publish("IS_READY", true);
+      }, 100);
+      return pubsub.asyncIterator("IS_READY");
+    },
+    resolve: () => true,
+  })
+);

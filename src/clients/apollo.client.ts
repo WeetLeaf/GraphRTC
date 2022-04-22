@@ -15,14 +15,6 @@ if (typeof window !== "undefined") {
       disablePong: false,
       retryAttempts: 10,
       keepAlive: Infinity,
-      on: {
-        connected: () => {
-          console.log("connected");
-        },
-        connecting: () => {
-          console.log("connecting");
-        },
-      },
     })
   );
 

@@ -41,6 +41,9 @@ builder.queryField("joinRoom", (t) =>
   })
 );
 
+// Subscribe to new participants in the room
+// The particiapant is sending his own uuid generated in the client
+// The server send the participant uuid to the room
 builder.subscriptionField("subscribeToParticipants", (t) =>
   t.field({
     type: Participant,
@@ -56,6 +59,7 @@ builder.subscriptionField("subscribeToParticipants", (t) =>
   })
 );
 
+// The user send the offer to the room with the particiapant uuid
 builder.mutationField("sendUserOffer", (t) =>
   t.boolean({
     args: {
@@ -73,6 +77,7 @@ builder.mutationField("sendUserOffer", (t) =>
   })
 );
 
+// The user subscribe to the offer he gets on his own user uuid to a specific room
 builder.subscriptionField("subscribeToOffers", (t) =>
   t.field({
     type: OfferObject,

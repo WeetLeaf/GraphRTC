@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+import { useRTC } from "../contexts/rtc.context";
 import { useRoom } from "../hooks/useRoom";
 
 export default function Room() {
@@ -7,7 +8,7 @@ export default function Room() {
 }
 
 const RoomReady = () => {
-  const { isReady } = useRouter();
+  const { identity } = useRTC();
   useRoom();
-  return <div>{isReady ? "Ready" : "Not ready"}</div>;
+  return <div>{identity}</div>;
 };

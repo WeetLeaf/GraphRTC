@@ -85,6 +85,7 @@ export type Room = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  isConnectionReady: Scalars['Boolean'];
   /**
    * Subscription to server status, trigger using mutation `testSubscription`
    * @deprecated Use only for testing
@@ -121,7 +122,37 @@ export type OnNewParticipantSubscriptionVariables = Exact<{
 }>;
 
 
-export type OnNewParticipantSubscription = { __typename?: 'Subscription', subscribeToParticipants: { __typename?: 'Participant', uuid: string } };
+export type OnNewParticipantSubscription = { __typename?: 'Subscription', participant: { __typename?: 'Participant', uuid: string } };
+
+export type JoinRoomQueryVariables = Exact<{
+  roomUuid: Scalars['String'];
+  userUuid: Scalars['String'];
+}>;
+
+
+export type JoinRoomQuery = { __typename?: 'Query', joinRoom?: boolean | null };
+
+export type SendOfferMutationVariables = Exact<{
+  offer: OfferInput;
+  room: Scalars['String'];
+  user: Scalars['String'];
+}>;
+
+
+export type SendOfferMutation = { __typename?: 'Mutation', sendUserOffer: boolean };
+
+export type OnOfferSubscriptionVariables = Exact<{
+  room: Scalars['String'];
+  user: Scalars['String'];
+}>;
+
+
+export type OnOfferSubscription = { __typename?: 'Subscription', offer: { __typename?: 'Offer', sdp?: string | null, type: RtcSdpType } };
+
+export type IsReadySubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type IsReadySubscription = { __typename?: 'Subscription', isConnectionReady: boolean };
 
 export type OnSubscriptionWorksSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
