@@ -7,13 +7,12 @@ import { useRTC } from "../../contexts/rtc.context";
 import {
   CreateRoomMutation,
   CreateRoomMutationVariables,
-  Offer,
   RtcSdpType,
 } from "../../__generated__/grahql";
 
 const CREATE_ROOM = gql`
-  mutation CreateRoom($offer: OfferInput!) {
-    room: createRoom(name: "test", offer: $offer) {
+  mutation CreateRoom {
+    room: createRoom(name: "test") {
       uuid
     }
   }
@@ -23,8 +22,6 @@ export const CreateRoom = () => {
   const { push } = useRouter();
 
   const toast = useToast();
-
-  const { peerConnection } = useRTC();
 
   const [createRoom, { loading }] = useMutation<
     CreateRoomMutation,
@@ -48,14 +45,7 @@ export const CreateRoom = () => {
     <button
       className="bg-white text-indigo-500 px-4 py-2 w-full rounded-md font-semibold"
       onClick={async () => {
-        let off = await peerConnection.createOffer();
-
-        let offer: Offer = {
-          type: mapTypeOffer(off.type),
-          sdp: off.sdp,
-        };
-
-        createRoom({ variables: { offer } });
+        createRoom();
       }}
     >
       <span>{loading ? "Creating room..." : "Create room"}</span>

@@ -13,15 +13,10 @@ export type Scalars = {
   Date: any;
 };
 
-export enum Action {
-  Join = 'JOIN',
-  Leave = 'LEAVE'
-}
-
 export type Mutation = {
   __typename?: 'Mutation';
   createRoom: Room;
-  leaveRoom?: Maybe<Room>;
+  sendUserOffer: Scalars['Boolean'];
   /**
    * Mutation to trigger subscription serverStatus !
    * @deprecated Use only for testing
@@ -32,13 +27,13 @@ export type Mutation = {
 
 export type MutationCreateRoomArgs = {
   name: Scalars['String'];
-  offer: OfferInput;
 };
 
 
-export type MutationLeaveRoomArgs = {
-  name: Scalars['String'];
-  uuid: Scalars['String'];
+export type MutationSendUserOfferArgs = {
+  offer: OfferInput;
+  roomUuid: Scalars['String'];
+  userUuid: Scalars['String'];
 };
 
 export type Offer = {
@@ -54,33 +49,26 @@ export type OfferInput = {
 
 export type ParticiantAction = {
   __typename?: 'ParticiantAction';
-  action: Action;
+  action: Offer;
   participant: Participant;
 };
 
 export type Participant = {
   __typename?: 'Participant';
-  name: Scalars['String'];
   uuid: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
   isAlive: Scalars['Boolean'];
-  joinRoom?: Maybe<Room>;
+  joinRoom?: Maybe<Scalars['Boolean']>;
   ping: Scalars['String'];
-  room?: Maybe<Room>;
 };
 
 
 export type QueryJoinRoomArgs = {
-  name: Scalars['String'];
-  uuid: Scalars['String'];
-};
-
-
-export type QueryRoomArgs = {
-  uuid: Scalars['String'];
+  roomUuid: Scalars['String'];
+  userUuid: Scalars['String'];
 };
 
 export enum RtcSdpType {
@@ -92,8 +80,6 @@ export enum RtcSdpType {
 
 export type Room = {
   __typename?: 'Room';
-  offer: Offer;
-  participants: Array<Participant>;
   uuid: Scalars['String'];
 };
 
@@ -104,27 +90,38 @@ export type Subscription = {
    * @deprecated Use only for testing
    */
   serverStatus: Scalars['Float'];
-  subscribeToParticipants: ParticiantAction;
+  subscribeToAnswers: ParticiantAction;
+  subscribeToOffers: Offer;
+  subscribeToParticipants: Participant;
+};
+
+
+export type SubscriptionSubscribeToAnswersArgs = {
+  uuid: Scalars['String'];
+};
+
+
+export type SubscriptionSubscribeToOffersArgs = {
+  roomUuid: Scalars['String'];
+  userUuid: Scalars['String'];
 };
 
 
 export type SubscriptionSubscribeToParticipantsArgs = {
-  uuid: Scalars['String'];
+  roomUuid: Scalars['String'];
 };
 
-export type CreateRoomMutationVariables = Exact<{
-  offer: OfferInput;
-}>;
+export type CreateRoomMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CreateRoomMutation = { __typename?: 'Mutation', room: { __typename?: 'Room', uuid: string } };
 
-export type GetRoomQueryVariables = Exact<{
-  uuid: Scalars['String'];
+export type OnNewParticipantSubscriptionVariables = Exact<{
+  roomId: Scalars['String'];
 }>;
 
 
-export type GetRoomQuery = { __typename?: 'Query', room?: { __typename?: 'Room', uuid: string, participants: Array<{ __typename?: 'Participant', uuid: string, name: string }>, offer: { __typename?: 'Offer', type: RtcSdpType, sdp?: string | null } } | null };
+export type OnNewParticipantSubscription = { __typename?: 'Subscription', subscribeToParticipants: { __typename?: 'Participant', uuid: string } };
 
 export type OnSubscriptionWorksSubscriptionVariables = Exact<{ [key: string]: never; }>;
 

@@ -1,7 +1,11 @@
 import { gql, useMutation, useSubscription } from "@apollo/client";
 import { useToast } from "@chakra-ui/react";
 import React, { useEffect } from "react";
-import { OnSubscriptionWorksSubscription, TestSubMutationMutation } from "../../__generated__/grahql";
+import { apolloClient } from "../../clients/apollo.client";
+import {
+  OnSubscriptionWorksSubscription,
+  TestSubMutationMutation,
+} from "../../__generated__/grahql";
 
 const SUBSCRIBE_MUTATION = gql`
   subscription onSubscriptionWorks {
@@ -18,8 +22,18 @@ const TRIGGER_MUTATION = gql`
 export default function SubTestPage() {
   const toast = useToast();
 
-  const { data } =
-    useSubscription<OnSubscriptionWorksSubscription>(SUBSCRIBE_MUTATION);
+  useEffect(() => {
+    console.log("! SubTestPage mounted");
+  }, []);
+
+  const { data, error } = useSubscription<OnSubscriptionWorksSubscription>(
+    SUBSCRIBE_MUTATION,
+    {
+      shouldResubscribe: true,
+    }
+  );
+
+  console.log("error", typeof error);
 
   const [trigger] = useMutation<TestSubMutationMutation>(TRIGGER_MUTATION, {
     onError: (e) => {

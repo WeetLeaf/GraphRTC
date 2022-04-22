@@ -1,21 +1,14 @@
 import { builder } from "../builder";
-import { ParticiantAction, Participant } from "../models/Participants";
+import { Offer } from "../models/Offer";
+import { ParticiantOffer, Participant } from "../models/Participants";
 import { Room } from "../models/Room";
-import { RoomAction } from "../models/RoomAction";
 import { OfferInput, OfferObject } from "./offer.resolver";
-import {
-  ParticiantActionObject,
-  ParticipantObject,
-} from "./participant.resolver";
+import { ParticiantActionObject } from "./participant.resolver";
 
 export const RoomObject = builder.objectType(Room, {
   name: "Room",
   fields: (t) => ({
     uuid: t.exposeString("uuid"),
-    offer: t.expose("offer", { type: OfferObject }),
-    participants: t.expose("participants", {
-      type: [ParticipantObject],
-    }),
   }),
 });
 
@@ -24,87 +17,89 @@ builder.mutationField("createRoom", (t) =>
     type: RoomObject,
     args: {
       name: t.arg.string(),
-      offer: t.arg({ type: OfferInput }),
     },
-    resolve: async (_root, { name, offer }, { rooms }) => {
-      const room = new Room({ type: offer.type, sdp: offer.sdp ?? undefined });
-      let participant = new Participant(name);
-      room.participants.push(participant);
-      rooms.set(room.uuid, room);
-      return room;
+    resolve: () => {
+      return new Room();
     },
   })
 );
 
-builder.queryField("room", (t) =>
-  t.field({
-    type: RoomObject,
-    nullable: true,
-    args: {
-      uuid: t.arg.string({ required: true }),
-    },
-    resolve: (_root, { uuid }, { rooms }) => {
-      return rooms.get(uuid);
-    },
-  })
-);
-
+// Just send the event to the room that you are joining
 builder.queryField("joinRoom", (t) =>
-  t.field({
-    type: RoomObject,
+  t.boolean({
     nullable: true,
     args: {
-      uuid: t.arg.string({ required: true }),
-      name: t.arg.string({ required: true }),
+      roomUuid: t.arg.string(),
+      userUuid: t.arg.string(),
     },
-    resolve: async (_root, { uuid, name }, { rooms, pubsub }) => {
-      const room = rooms.get(uuid);
-      if (!room) return null;
-      const participant = new Participant(name);
-      room.participants.push(participant);
-      await pubsub.publish<ParticiantAction>(`${uuid}_NEW_PARTICIPANT`, {
-        participant,
-        action: RoomAction.JOIN,
+    resolve: async (_root, { roomUuid, userUuid }, { pubsub }) => {
+      await pubsub.publish<Participant>(`${roomUuid}:NEW_PARTICIPANT`, {
+        uuid: userUuid,
       });
-      return room;
+      return true;
     },
   })
 );
 
 builder.subscriptionField("subscribeToParticipants", (t) =>
   t.field({
-    type: ParticiantActionObject,
+    type: Participant,
     args: {
-      uuid: t.arg.string({ required: true, description: "Room uuid" }),
+      roomUuid: t.arg.string(),
     },
-    subscribe: (_, { uuid }, { pubsub }) => {
-      return pubsub.asyncIterator<ParticiantAction>(`${uuid}_PARTICIPANT`);
+    subscribe: (_root, { roomUuid }, { pubsub }) => {
+      return pubsub.asyncIterator<Participant>(`${roomUuid}:NEW_PARTICIPANT`);
     },
-    resolve: (payload: ParticiantAction) => {
+    resolve: (payload: Participant) => {
       return payload;
     },
   })
 );
 
-builder.mutationField("leaveRoom", (t) =>
-  t.field({
-    type: RoomObject,
-    nullable: true,
+builder.mutationField("sendUserOffer", (t) =>
+  t.boolean({
     args: {
-      uuid: t.arg.string({ required: true }),
-      name: t.arg.string({ required: true }),
+      roomUuid: t.arg.string(),
+      userUuid: t.arg.string(),
+      offer: t.arg({ type: OfferInput }),
     },
-    resolve: async (_root, { uuid, name }, { rooms, pubsub }) => {
-      const room = rooms.get(uuid);
-      if (!room) return null;
-
-      const participant = new Participant(name);
-      room.participants.push(participant);
-      await pubsub.publish<ParticiantAction>(`${uuid}_PARTICIPANT`, {
-        participant,
-        action: RoomAction.LEAVE,
+    resolve: async (_root, { roomUuid, userUuid, offer }, { pubsub }) => {
+      await pubsub.publish<Offer>(`${roomUuid}:${userUuid}:NEW_OFFER`, {
+        type: offer.type,
+        sdp: offer.sdp ?? undefined,
       });
-      return room;
+      return true;
+    },
+  })
+);
+
+builder.subscriptionField("subscribeToOffers", (t) =>
+  t.field({
+    type: OfferObject,
+    args: {
+      userUuid: t.arg.string({ description: "User uuid" }),
+      roomUuid: t.arg.string({ description: "Room uuid" }),
+    },
+    subscribe: (_, { roomUuid, userUuid }, { pubsub }) => {
+      return pubsub.asyncIterator<Offer>(`${roomUuid}:${userUuid}:NEW_OFFER`);
+    },
+    resolve: (payload: Offer) => {
+      return payload;
+    },
+  })
+);
+
+builder.subscriptionField("subscribeToAnswers", (t) =>
+  t.field({
+    type: ParticiantActionObject,
+    args: {
+      uuid: t.arg.string({ required: true, description: "User uuid" }),
+    },
+    subscribe: (_, { uuid }, { pubsub }) => {
+      return pubsub.asyncIterator<ParticiantOffer>(`${uuid}:NEW_OFFER`);
+    },
+    resolve: (payload: ParticiantOffer) => {
+      return payload;
     },
   })
 );

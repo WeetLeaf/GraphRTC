@@ -11,6 +11,18 @@ if (typeof window !== "undefined") {
   const wsLink = new GraphQLWsLink(
     createClient({
       url: process.env.NEXT_PUBLIC_API_WEBSOCKET_ENDPOINT,
+      connectionAckWaitTimeout: 0,
+      disablePong: false,
+      retryAttempts: 10,
+      keepAlive: Infinity,
+      on: {
+        connected: () => {
+          console.log("connected");
+        },
+        connecting: () => {
+          console.log("connecting");
+        },
+      },
     })
   );
 

@@ -1,13 +1,8 @@
-enum Action {
-  JOIN
-  LEAVE
-}
-
 scalar Date
 
 type Mutation {
-  createRoom(name: String!, offer: OfferInput!): Room!
-  leaveRoom(name: String!, uuid: String!): Room
+  createRoom(name: String!): Room!
+  sendUserOffer(offer: OfferInput!, roomUuid: String!, userUuid: String!): Boolean!
 
   """Mutation to trigger subscription serverStatus !"""
   testSubscription: Boolean! @deprecated(reason: "Use only for testing")
@@ -24,20 +19,18 @@ input OfferInput {
 }
 
 type ParticiantAction {
-  action: Action!
+  action: Offer!
   participant: Participant!
 }
 
 type Participant {
-  name: String!
   uuid: String!
 }
 
 type Query {
   isAlive: Boolean!
-  joinRoom(name: String!, uuid: String!): Room
+  joinRoom(roomUuid: String!, userUuid: String!): Boolean
   ping: String!
-  room(uuid: String!): Room
 }
 
 enum RTCSdpType {
@@ -48,8 +41,6 @@ enum RTCSdpType {
 }
 
 type Room {
-  offer: Offer!
-  participants: [Participant!]!
   uuid: String!
 }
 
@@ -58,8 +49,16 @@ type Subscription {
   Subscription to server status, trigger using mutation `testSubscription` 
   """
   serverStatus: Float! @deprecated(reason: "Use only for testing")
-  subscribeToParticipants(
-    """Room uuid"""
+  subscribeToAnswers(
+    """User uuid"""
     uuid: String!
   ): ParticiantAction!
+  subscribeToOffers(
+    """Room uuid"""
+    roomUuid: String!
+
+    """User uuid"""
+    userUuid: String!
+  ): Offer!
+  subscribeToParticipants(roomUuid: String!): Participant!
 }

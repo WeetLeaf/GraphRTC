@@ -18,7 +18,6 @@ async function startApolloServer() {
   // Fix for the socket having a conflict with HMR from Next.js
   // In dev mode we launch 2 apps, one for the server and one for the client
   // In prod mode we launch only one app because there is no HMR
-
   if (isProd) {
     const nextApp = next({ dev: false });
     const handle = nextApp.getRequestHandler();

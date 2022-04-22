@@ -1,26 +1,13 @@
-import { useEffect } from "react";
-import { useRTC } from "../contexts/rtc.context";
+import { useRouter } from "next/router";
+import { useRoom } from "../hooks/useRoom";
 
 export default function Room() {
-  const { peerConnection } = useRTC();
-
-  const createOffer = async () => {
-    let offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    console.log("Created offer:", offer);
-
-    peerConnection.addEventListener("icecandidate", (event) => {
-      if (!event.candidate) {
-        console.log("Got final candidate!");
-        return;
-      }
-      console.log("Got candidate: ", event.candidate);
-    });
-  };
-
-  useEffect(() => {
-    createOffer();
-  }, []);
-
-  return <div>Room</div>;
+  const { isReady } = useRouter();
+  return isReady ? <RoomReady /> : null;
 }
+
+const RoomReady = () => {
+  const { isReady } = useRouter();
+  useRoom();
+  return <div>{isReady ? "Ready" : "Not ready"}</div>;
+};

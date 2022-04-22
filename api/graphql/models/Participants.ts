@@ -1,22 +1,20 @@
 import { v4 } from "uuid";
-import { RoomAction } from "./RoomAction";
+import { Offer } from "./Offer";
 
 export class Participant {
   uuid: string;
-  name: string;
 
-  constructor(name: string) {
-    this.name = name;
+  constructor() {
     this.uuid = v4();
   }
 }
 
-export class ParticiantAction {
+export class ParticiantOffer {
   participant: Participant;
-  action: RoomAction;
+  offer: Offer;
 
-  constructor(participant: Participant, action: RoomAction) {
+  constructor(participant: Participant, offer: Offer) {
     this.participant = participant;
-    this.action = action;
+    this.offer = offer;
   }
 }
