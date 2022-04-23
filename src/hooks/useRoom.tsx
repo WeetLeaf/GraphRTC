@@ -47,11 +47,6 @@ export const useRoom = ({ onParticipant, onOffer }: Props) => {
   const apollo = useApolloClient();
   const { query } = useRouter();
 
-  // Print my identity in the console
-  useEffect(() => {
-    console.log("My identity: ", identity);
-  }, []);
-
   // Start subscribing to new participants
   // We never unsubscribe from this subscription
   const { data: onNewParticipant } = useSubscription<
@@ -76,7 +71,6 @@ export const useRoom = ({ onParticipant, onOffer }: Props) => {
     });
 
     const listener = subscription.subscribe(({ data }) => {
-      console.log("Received offer: ", data);
       if (!data) return;
       onOffer({ type: data.offer.type, sdp: data.offer.sdp ?? undefined });
     });
@@ -90,7 +84,7 @@ export const useRoom = ({ onParticipant, onOffer }: Props) => {
     JOIN_ROOM,
     {
       onError: (e) => {
-        console.log("Error joining room: ", e);
+        console.error("Error joining room: ", e);
       },
     }
   );
@@ -107,7 +101,6 @@ export const useRoom = ({ onParticipant, onOffer }: Props) => {
 
     const listener = subscription.subscribe(({ data }) => {
       if (data?.isConnectionReady) {
-        console.log("Connection ready");
         joinRoom({
           variables: { roomUuid: query.uuid as string, userUuid: identity },
         });

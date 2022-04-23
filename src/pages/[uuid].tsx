@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { RTCAnswer } from "../components/RTC/rtc.answer";
 import { RTCCall } from "../components/RTC/rtc.call";
 import { useRTC } from "../contexts/rtc.context";
@@ -11,24 +11,41 @@ export default function Room() {
 }
 
 const RoomReady = () => {
-  const { identity } = useRTC();
+  const { identity, localStream } = useRTC();
 
   const [rtcOffers, setRtcOffers] = useState<string[]>([]);
   const [rtcAnswers, setRtcAnswers] = useState<RTCSessionDescriptionInit[]>([]);
 
+  const localStreamRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!localStream || !localStreamRef.current) return;
+    localStreamRef.current.srcObject = localStream;
+  }, [localStream]);
+
   useRoom({
     onOffer: (offer) => {
-      console.log("onOffer: ", offer);
       setRtcAnswers((rtcAnswers) => [...rtcAnswers, offer]);
     },
     onParticipant: (participant) => {
-      console.log("onParticipant: ", participant);
       setRtcOffers((rtcOffers) => [...rtcOffers, participant]);
     },
   });
   return (
     <div>
       <div>{identity}</div>
+
+      {localStream && (
+        <video
+          muted
+          autoPlay
+          playsInline
+          ref={localStreamRef}
+          height={100}
+          width={100}
+        />
+      )}
+
       {rtcAnswers.map((answer, index) => (
         <RTCAnswer offer={answer} key={answer.sdp ?? index} />
       ))}
