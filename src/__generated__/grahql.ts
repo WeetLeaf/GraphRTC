@@ -121,6 +121,15 @@ export type SubscriptionSubscribeToParticipantsArgs = {
   roomUuid: Scalars['String'];
 };
 
+export type SendAnswerMutationVariables = Exact<{
+  answer: OfferInput;
+  roomUuid: Scalars['String'];
+  offerSdp: Scalars['String'];
+}>;
+
+
+export type SendAnswerMutation = { __typename?: 'Mutation', sendOfferAnswer: boolean };
+
 export type SendOfferMutationVariables = Exact<{
   offer: OfferInput;
   room: Scalars['String'];

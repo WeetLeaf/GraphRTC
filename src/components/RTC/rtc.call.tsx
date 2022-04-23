@@ -30,7 +30,7 @@ const SUB_TO_ANSWER = gql`
 
 export const RTCCall = (props: Props) => {
   const { query } = useRouter();
-  const [peerConnection] = useState(new RTCPeerConnection(configuration));
+  const peerConnection = useRef(new RTCPeerConnection(configuration));
   const apollo = useApolloClient();
 
   const [sendOffer] = useMutation<
@@ -73,7 +73,7 @@ export const RTCCall = (props: Props) => {
     console.log("Try to call: ", props.userUuid);
     (async () => {
       console.log("Sending offer to: ", props.userUuid);
-      let offer = await peerConnection.createOffer();
+      let offer = await peerConnection.current.createOffer();
       setAnswerListener(offer);
       sendOffer({
         variables: {
