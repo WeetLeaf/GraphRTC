@@ -16,6 +16,7 @@ export type Scalars = {
 export type Mutation = {
   __typename?: 'Mutation';
   createRoom: Room;
+  sendOfferAnswer: Scalars['Boolean'];
   sendUserOffer: Scalars['Boolean'];
   /**
    * Mutation to trigger subscription serverStatus !
@@ -27,6 +28,13 @@ export type Mutation = {
 
 export type MutationCreateRoomArgs = {
   name: Scalars['String'];
+};
+
+
+export type MutationSendOfferAnswerArgs = {
+  answer: OfferInput;
+  offerSdp: Scalars['String'];
+  roomUuid: Scalars['String'];
 };
 
 
@@ -91,14 +99,15 @@ export type Subscription = {
    * @deprecated Use only for testing
    */
   serverStatus: Scalars['Float'];
-  subscribeToAnswers: ParticiantAction;
+  subscribeToAnswers: Offer;
   subscribeToOffers: Offer;
   subscribeToParticipants: Participant;
 };
 
 
 export type SubscriptionSubscribeToAnswersArgs = {
-  uuid: Scalars['String'];
+  offerSdp: Scalars['String'];
+  roomUuid: Scalars['String'];
 };
 
 
@@ -111,6 +120,23 @@ export type SubscriptionSubscribeToOffersArgs = {
 export type SubscriptionSubscribeToParticipantsArgs = {
   roomUuid: Scalars['String'];
 };
+
+export type SendOfferMutationVariables = Exact<{
+  offer: OfferInput;
+  room: Scalars['String'];
+  user: Scalars['String'];
+}>;
+
+
+export type SendOfferMutation = { __typename?: 'Mutation', sendUserOffer: boolean };
+
+export type SubscribeToAnwserSubscriptionVariables = Exact<{
+  offerSdp: Scalars['String'];
+  roomUuid: Scalars['String'];
+}>;
+
+
+export type SubscribeToAnwserSubscription = { __typename?: 'Subscription', subscribeToAnswers: { __typename?: 'Offer', sdp?: string | null, type: RtcSdpType } };
 
 export type CreateRoomMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -131,15 +157,6 @@ export type JoinRoomQueryVariables = Exact<{
 
 
 export type JoinRoomQuery = { __typename?: 'Query', joinRoom?: boolean | null };
-
-export type SendOfferMutationVariables = Exact<{
-  offer: OfferInput;
-  room: Scalars['String'];
-  user: Scalars['String'];
-}>;
-
-
-export type SendOfferMutation = { __typename?: 'Mutation', sendUserOffer: boolean };
 
 export type OnOfferSubscriptionVariables = Exact<{
   room: Scalars['String'];

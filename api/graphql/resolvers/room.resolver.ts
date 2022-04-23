@@ -94,16 +94,34 @@ builder.subscriptionField("subscribeToOffers", (t) =>
   })
 );
 
+builder.mutationField("sendOfferAnswer", (t) =>
+  t.boolean({
+    args: {
+      roomUuid: t.arg.string(),
+      offerSdp: t.arg.string(),
+      answer: t.arg({ type: OfferInput }),
+    },
+    resolve: async (_root, { roomUuid, offerSdp, answer }, { pubsub }) => {
+      await pubsub.publish<Offer>(`${roomUuid}:${offerSdp}:NEW_ANSWER`, {
+        type: answer.type,
+        sdp: answer.sdp ?? undefined,
+      });
+      return true;
+    },
+  })
+);
+
 builder.subscriptionField("subscribeToAnswers", (t) =>
   t.field({
-    type: ParticiantActionObject,
+    type: OfferObject,
     args: {
-      uuid: t.arg.string({ required: true, description: "User uuid" }),
+      roomUuid: t.arg.string({ description: "Room uuid" }),
+      offerSdp: t.arg.string({ description: "Offer sdp" }),
     },
-    subscribe: (_, { uuid }, { pubsub }) => {
-      return pubsub.asyncIterator<ParticiantOffer>(`${uuid}:NEW_OFFER`);
+    subscribe: (_, { roomUuid, offerSdp }, { pubsub }) => {
+      return pubsub.asyncIterator<Offer>(`${roomUuid}:${offerSdp}:NEW_ANSWER`);
     },
-    resolve: (payload: ParticiantOffer) => {
+    resolve: (payload: Offer) => {
       return payload;
     },
   })

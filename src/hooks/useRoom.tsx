@@ -1,14 +1,8 @@
-import {
-  useApolloClient,
-  useLazyQuery,
-  useMutation,
-  useSubscription,
-} from "@apollo/client";
+import { useApolloClient, useLazyQuery, useSubscription } from "@apollo/client";
 import { gql } from "apollo-server-core";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useRTC } from "../contexts/rtc.context";
-import { mapTypeOffer } from "../utils/mapTypeOffer";
 import {
   IsReadySubscription,
   JoinRoomQuery,
@@ -17,8 +11,6 @@ import {
   OnNewParticipantSubscriptionVariables,
   OnOfferSubscription,
   OnOfferSubscriptionVariables,
-  SendOfferMutation,
-  SendOfferMutationVariables,
 } from "../__generated__/grahql";
 
 const SUB_TO_PARTICIPANT = gql`
@@ -35,12 +27,6 @@ const JOIN_ROOM = gql`
   }
 `;
 
-const SEND_OFFER = gql`
-  mutation SendOffer($offer: OfferInput!, $room: String!, $user: String!) {
-    sendUserOffer(offer: $offer, roomUuid: $room, userUuid: $user)
-  }
-`;
-
 const SUB_TO_OFFER = gql`
   subscription OnOffer($room: String!, $user: String!) {
     offer: subscribeToOffers(roomUuid: $room, userUuid: $user) {
@@ -50,8 +36,13 @@ const SUB_TO_OFFER = gql`
   }
 `;
 
-export const useRoom = () => {
-  const { identity, peerConnection } = useRTC();
+type Props = {
+  onParticipant: (participant: string) => void;
+  onOffer: (offer: RTCSessionDescriptionInit) => void;
+};
+
+export const useRoom = ({ onParticipant, onOffer }: Props) => {
+  const { identity } = useRTC();
 
   const apollo = useApolloClient();
   const { query } = useRouter();
@@ -71,18 +62,12 @@ export const useRoom = () => {
     variables: { roomId: query.uuid as string },
   });
 
-  const [sendOffer] = useMutation<
-    SendOfferMutation,
-    SendOfferMutationVariables
-  >(SEND_OFFER, {
-    onError: (e) => {
-      console.log("Error sending offer: ", e);
-    },
-  });
-
   // Subscribe to offers
   useEffect(() => {
-    const subscription = apollo.subscribe({
+    const subscription = apollo.subscribe<
+      OnOfferSubscription,
+      OnOfferSubscriptionVariables
+    >({
       query: SUB_TO_OFFER,
       variables: {
         room: query.uuid as string,
@@ -92,6 +77,8 @@ export const useRoom = () => {
 
     const listener = subscription.subscribe(({ data }) => {
       console.log("Received offer: ", data);
+      if (!data) return;
+      onOffer({ type: data.offer.type, sdp: data.offer.sdp ?? undefined });
     });
 
     return () => {
@@ -137,17 +124,6 @@ export const useRoom = () => {
   useEffect(() => {
     if (!onNewParticipant?.participant.uuid) return;
     if (onNewParticipant.participant.uuid === identity) return;
-
-    (async () => {
-      console.log("Sending offer to: ", onNewParticipant.participant.uuid);
-      let offer = await peerConnection.createOffer();
-      sendOffer({
-        variables: {
-          offer: { type: mapTypeOffer(offer.type), sdp: offer.sdp },
-          room: query.uuid as string,
-          user: onNewParticipant.participant.uuid,
-        },
-      });
-    })();
+    onParticipant(onNewParticipant.participant.uuid);
   }, [onNewParticipant]);
 };

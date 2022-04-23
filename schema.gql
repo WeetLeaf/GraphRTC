@@ -2,6 +2,7 @@ scalar Date
 
 type Mutation {
   createRoom(name: String!): Room!
+  sendOfferAnswer(answer: OfferInput!, offerSdp: String!, roomUuid: String!): Boolean!
   sendUserOffer(offer: OfferInput!, roomUuid: String!, userUuid: String!): Boolean!
 
   """Mutation to trigger subscription serverStatus !"""
@@ -52,9 +53,12 @@ type Subscription {
   """
   serverStatus: Float! @deprecated(reason: "Use only for testing")
   subscribeToAnswers(
-    """User uuid"""
-    uuid: String!
-  ): ParticiantAction!
+    """Offer sdp"""
+    offerSdp: String!
+
+    """Room uuid"""
+    roomUuid: String!
+  ): Offer!
   subscribeToOffers(
     """Room uuid"""
     roomUuid: String!

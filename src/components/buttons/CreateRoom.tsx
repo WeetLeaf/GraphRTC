@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import {
   CreateRoomMutation,
-  CreateRoomMutationVariables
+  CreateRoomMutationVariables,
 } from "../../__generated__/grahql";
 
 const CREATE_ROOM = gql`
@@ -50,5 +50,3 @@ export const CreateRoom = () => {
     </button>
   );
 };
-
-
