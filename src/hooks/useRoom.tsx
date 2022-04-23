@@ -1,4 +1,9 @@
-import { useLazyQuery, useMutation, useSubscription } from "@apollo/client";
+import {
+  useApolloClient,
+  useLazyQuery,
+  useMutation,
+  useSubscription,
+} from "@apollo/client";
 import { gql } from "apollo-server-core";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -48,11 +53,16 @@ const SUB_TO_OFFER = gql`
 export const useRoom = () => {
   const { identity, peerConnection } = useRTC();
 
+  const apollo = useApolloClient();
+  const { query } = useRouter();
+
+  // Print my identity in the console
   useEffect(() => {
     console.log("My identity: ", identity);
   }, []);
 
-  const { query } = useRouter();
+  // Start subscribing to new participants
+  // We never unsubscribe from this subscription
   const { data: onNewParticipant } = useSubscription<
     OnNewParticipantSubscription,
     OnNewParticipantSubscriptionVariables
@@ -70,18 +80,24 @@ export const useRoom = () => {
     },
   });
 
-  const { data: onNewOffer, loading } = useSubscription<
-    OnOfferSubscription,
-    OnOfferSubscriptionVariables
-  >(SUB_TO_OFFER, {
-    variables: {
-      room: query.uuid as string,
-      user: identity,
-    },
-    onSubscriptionComplete: () => {
-      console.log("Subscription complete");
-    },
-  });
+  // Subscribe to offers
+  useEffect(() => {
+    const subscription = apollo.subscribe({
+      query: SUB_TO_OFFER,
+      variables: {
+        room: query.uuid as string,
+        user: identity,
+      },
+    });
+
+    const listener = subscription.subscribe(({ data }) => {
+      console.log("Received offer: ", data);
+    });
+
+    return () => {
+      listener.unsubscribe();
+    };
+  }, []);
 
   const [joinRoom] = useLazyQuery<JoinRoomQuery, JoinRoomQueryVariables>(
     JOIN_ROOM,
@@ -92,32 +108,32 @@ export const useRoom = () => {
     }
   );
 
-  const { data: connectionReady } = useSubscription<IsReadySubscription>(gql`
-    subscription IsReady {
-      isConnectionReady
-    }
-  `);
-
+  // Join the room when websocket is ready
   useEffect(() => {
-    if (!onNewOffer) return;
-    console.log("Received new offer: ", onNewOffer);
-  }, [onNewOffer]);
-
-  useEffect(() => {
-    if (!connectionReady?.isConnectionReady) return;
-    console.log(
-      "Connection ready, joining room",
-      connectionReady.isConnectionReady
-    );
-
-    joinRoom({
-      variables: {
-        roomUuid: query.uuid as string,
-        userUuid: identity,
-      },
+    const subscription = apollo.subscribe<IsReadySubscription>({
+      query: gql`
+        subscription IsReady {
+          isConnectionReady
+        }
+      `,
     });
-  }, [connectionReady?.isConnectionReady]);
 
+    const listener = subscription.subscribe(({ data }) => {
+      if (data?.isConnectionReady) {
+        console.log("Connection ready");
+        joinRoom({
+          variables: { roomUuid: query.uuid as string, userUuid: identity },
+        });
+        listener.unsubscribe();
+      }
+    });
+
+    return () => {
+      listener.unsubscribe();
+    };
+  }, []);
+
+  // Listen for new participants and send them offers
   useEffect(() => {
     if (!onNewParticipant?.participant.uuid) return;
     if (onNewParticipant.participant.uuid === identity) return;
