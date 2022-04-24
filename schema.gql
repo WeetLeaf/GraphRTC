@@ -1,6 +1,26 @@
+type Candidate {
+  candidate: String
+  sdpMLineIndex: Int
+  sdpMid: String
+  usernameFragment: String
+}
+
+input CandidateInput {
+  candidate: String
+  sdpMLineIndex: Int
+  sdpMid: String
+  usernameFragment: String
+}
+
+enum CandidateType {
+  CALLEE
+  CALLER
+}
+
 scalar Date
 
 type Mutation {
+  addIceCandidate(candidateType: CandidateType!, iceCandidate: CandidateInput!, offerSdp: String!, roomUuid: String!): Boolean!
   createRoom(name: String!): Room!
   sendOfferAnswer(answer: OfferInput!, offerSdp: String!, roomUuid: String!): Boolean!
   sendUserOffer(offer: OfferInput!, roomUuid: String!, userUuid: String!): Boolean!
@@ -59,6 +79,7 @@ type Subscription {
     """Room uuid"""
     roomUuid: String!
   ): Offer!
+  subscribeToCandidate(candidateType: CandidateType!, offerSdp: String!, roomUuid: String!): Candidate!
   subscribeToOffers(
     """Room uuid"""
     roomUuid: String!

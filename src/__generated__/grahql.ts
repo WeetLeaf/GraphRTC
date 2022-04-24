@@ -13,8 +13,29 @@ export type Scalars = {
   Date: any;
 };
 
+export type Candidate = {
+  __typename?: 'Candidate';
+  candidate?: Maybe<Scalars['String']>;
+  sdpMLineIndex?: Maybe<Scalars['Int']>;
+  sdpMid?: Maybe<Scalars['String']>;
+  usernameFragment?: Maybe<Scalars['String']>;
+};
+
+export type CandidateInput = {
+  candidate?: InputMaybe<Scalars['String']>;
+  sdpMLineIndex?: InputMaybe<Scalars['Int']>;
+  sdpMid?: InputMaybe<Scalars['String']>;
+  usernameFragment?: InputMaybe<Scalars['String']>;
+};
+
+export enum CandidateType {
+  Callee = 'CALLEE',
+  Caller = 'CALLER'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
+  addIceCandidate: Scalars['Boolean'];
   createRoom: Room;
   sendOfferAnswer: Scalars['Boolean'];
   sendUserOffer: Scalars['Boolean'];
@@ -23,6 +44,14 @@ export type Mutation = {
    * @deprecated Use only for testing
    */
   testSubscription: Scalars['Boolean'];
+};
+
+
+export type MutationAddIceCandidateArgs = {
+  candidateType: CandidateType;
+  iceCandidate: CandidateInput;
+  offerSdp: Scalars['String'];
+  roomUuid: Scalars['String'];
 };
 
 
@@ -100,12 +129,20 @@ export type Subscription = {
    */
   serverStatus: Scalars['Float'];
   subscribeToAnswers: Offer;
+  subscribeToCandidate: Candidate;
   subscribeToOffers: Offer;
   subscribeToParticipants: Participant;
 };
 
 
 export type SubscriptionSubscribeToAnswersArgs = {
+  offerSdp: Scalars['String'];
+  roomUuid: Scalars['String'];
+};
+
+
+export type SubscriptionSubscribeToCandidateArgs = {
+  candidateType: CandidateType;
   offerSdp: Scalars['String'];
   roomUuid: Scalars['String'];
 };
@@ -130,6 +167,23 @@ export type SendAnswerMutationVariables = Exact<{
 
 export type SendAnswerMutation = { __typename?: 'Mutation', sendOfferAnswer: boolean };
 
+export type SendCalleeCandidateMutationVariables = Exact<{
+  iceCandidate: CandidateInput;
+  roomUuid: Scalars['String'];
+  offerSdp: Scalars['String'];
+}>;
+
+
+export type SendCalleeCandidateMutation = { __typename?: 'Mutation', addIceCandidate: boolean };
+
+export type SubscribeToCallerCandidateSubscriptionVariables = Exact<{
+  offerSdp: Scalars['String'];
+  roomUuid: Scalars['String'];
+}>;
+
+
+export type SubscribeToCallerCandidateSubscription = { __typename?: 'Subscription', subscribeToCandidate: { __typename?: 'Candidate', candidate?: string | null, sdpMLineIndex?: number | null, sdpMid?: string | null, usernameFragment?: string | null } };
+
 export type SendOfferMutationVariables = Exact<{
   offer: OfferInput;
   room: Scalars['String'];
@@ -146,6 +200,23 @@ export type SubscribeToAnwserSubscriptionVariables = Exact<{
 
 
 export type SubscribeToAnwserSubscription = { __typename?: 'Subscription', subscribeToAnswers: { __typename?: 'Offer', sdp?: string | null, type: RtcSdpType } };
+
+export type SendCallerCandidateMutationVariables = Exact<{
+  iceCandidate: CandidateInput;
+  roomUuid: Scalars['String'];
+  offerSdp: Scalars['String'];
+}>;
+
+
+export type SendCallerCandidateMutation = { __typename?: 'Mutation', addIceCandidate: boolean };
+
+export type SubscribeToCalleeCandidateSubscriptionVariables = Exact<{
+  offerSdp: Scalars['String'];
+  roomUuid: Scalars['String'];
+}>;
+
+
+export type SubscribeToCalleeCandidateSubscription = { __typename?: 'Subscription', subscribeToCandidate: { __typename?: 'Candidate', candidate?: string | null, sdpMLineIndex?: number | null, sdpMid?: string | null, usernameFragment?: string | null } };
 
 export type CreateRoomMutationVariables = Exact<{ [key: string]: never; }>;
 

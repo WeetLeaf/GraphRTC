@@ -1,9 +1,10 @@
 import { builder } from "../builder";
+import { Candidate, CandidateType } from "../models/Candidate";
 import { Offer } from "../models/Offer";
-import { ParticiantOffer, Participant } from "../models/Participants";
+import { Participant } from "../models/Participants";
 import { Room } from "../models/Room";
+import { CandidateInput, CandidateObject } from "./candidate.resolver";
 import { OfferInput, OfferObject } from "./offer.resolver";
-import { ParticiantActionObject } from "./participant.resolver";
 
 export const RoomObject = builder.objectType(Room, {
   name: "Room",
@@ -122,6 +123,58 @@ builder.subscriptionField("subscribeToAnswers", (t) =>
       return pubsub.asyncIterator<Offer>(`${roomUuid}:${offerSdp}:NEW_ANSWER`);
     },
     resolve: (payload: Offer) => {
+      return payload;
+    },
+  })
+);
+
+builder.mutationField("addIceCandidate", (t) =>
+  t.boolean({
+    args: {
+      roomUuid: t.arg.string(),
+      offerSdp: t.arg.string(),
+      iceCandidate: t.arg({
+        type: CandidateInput,
+      }),
+      candidateType: t.arg({
+        type: CandidateType,
+      }),
+    },
+    resolve: async (
+      _root,
+      { roomUuid, offerSdp, iceCandidate, candidateType },
+      { pubsub }
+    ) => {
+      await pubsub.publish<Candidate>(
+        `${roomUuid}:${offerSdp}:${candidateType}`,
+        {
+          candidate: iceCandidate.candidate ?? undefined,
+          sdpMLineIndex: iceCandidate.sdpMLineIndex ?? undefined,
+          sdpMid: iceCandidate.sdpMid ?? undefined,
+          usernameFragment: iceCandidate.usernameFragment ?? undefined,
+        }
+      );
+      return true;
+    },
+  })
+);
+
+builder.subscriptionField("subscribeToCandidate", (t) =>
+  t.field({
+    type: CandidateObject,
+    args: {
+      roomUuid: t.arg.string(),
+      offerSdp: t.arg.string(),
+      candidateType: t.arg({
+        type: CandidateType,
+      }),
+    },
+    subscribe: (_, { roomUuid, offerSdp, candidateType }, { pubsub }) => {
+      return pubsub.asyncIterator<Candidate>(
+        `${roomUuid}:${offerSdp}:${candidateType}`
+      );
+    },
+    resolve: (payload: Candidate) => {
       return payload;
     },
   })
