@@ -95,7 +95,6 @@ export const RTCAnswer = (props: Props) => {
   useEffect(() => {
     const data = onCallerCandidate?.subscribeToCandidate;
     if (!data) return;
-    console.log("Received caller candidate: ", data);
 
     (async () => {
       await peerConnection.addIceCandidate(
@@ -117,7 +116,6 @@ export const RTCAnswer = (props: Props) => {
   useEffect(() => {
     peerConnection.addEventListener("icecandidate", (event) => {
       if (!event.candidate) {
-        // console.log("Got final candidate!");
         return;
       }
       const data = event.candidate.toJSON();
@@ -128,35 +126,12 @@ export const RTCAnswer = (props: Props) => {
           iceCandidate: data,
         },
       });
-      // console.log("!!!! Got candidate: ", data);
     });
-
-    // peerConnection.addEventListener("icegatheringstatechange", () => {
-    //   console.log(
-    //     `ICE gathering state changed: ${peerConnection.iceGatheringState}`
-    //   );
-    // });
-
-    // peerConnection.addEventListener("connectionstatechange", () => {
-    //   console.log(`Connection state change: ${peerConnection.connectionState}`);
-    // });
-
-    // peerConnection.addEventListener("signalingstatechange", () => {
-    //   console.log(`Signaling state change: ${peerConnection.signalingState}`);
-    // });
-
-    // peerConnection.addEventListener("iceconnectionstatechange ", () => {
-    //   console.log(
-    //     `ICE connection state change: ${peerConnection.iceConnectionState}`
-    //   );
-    // });
   }, []);
 
   useEffect(() => {
     peerConnection.addEventListener("track", (event) => {
-      // console.log("Got remote track:", event.streams[0]);
       event.streams[0].getTracks().forEach((track) => {
-        // console.log("ANSWER - Add a track to the remoteStream:", track);
         remoteStream?.addTrack(track);
       });
     });

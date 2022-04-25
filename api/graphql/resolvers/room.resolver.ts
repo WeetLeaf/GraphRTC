@@ -145,7 +145,6 @@ builder.mutationField("addIceCandidate", (t) =>
       { roomUuid, offerSdp, iceCandidate, candidateType },
       { pubsub }
     ) => {
-      console.log("send candidate");
       await pubsub.publish<Candidate>(
         `${roomUuid}:${offerSdp}:${candidateType}`,
         {
@@ -171,8 +170,6 @@ builder.subscriptionField("subscribeToCandidate", (t) =>
       }),
     },
     subscribe: (_, { roomUuid, offerSdp, candidateType }, { pubsub }) => {
-      console.log("subscribe to candidate");
-
       return pubsub.asyncIterator<Candidate>(
         `${roomUuid}:${offerSdp}:${candidateType}`
       );

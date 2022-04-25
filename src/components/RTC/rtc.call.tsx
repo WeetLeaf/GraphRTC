@@ -150,8 +150,16 @@ export const RTCCall = (props: Props) => {
       },
     });
 
-    const listener = subscription.subscribe(({ data }) => {
+    const listener = subscription.subscribe(async (res) => {
+      const data = res.data?.subscribeToAnswers;
       if (!data) return;
+
+      const rtcSessionDescription = new RTCSessionDescription({
+        type: data.type,
+        sdp: data.sdp ?? undefined,
+      });
+      await peerConnection.setRemoteDescription(rtcSessionDescription);
+
       listener.unsubscribe();
     });
 
@@ -169,10 +177,7 @@ export const RTCCall = (props: Props) => {
 
   useEffect(() => {
     peerConnection.addEventListener("track", (event) => {
-      //TODO: Why i never get the renote track ?
-      console.log("Got remote track:", event.streams[0]);
       event.streams[0].getTracks().forEach((track) => {
-        console.log("CALL - Add a track to the remoteStream:", track);
         remoteStream.addTrack(track);
       });
     });
@@ -197,14 +202,12 @@ export const RTCCall = (props: Props) => {
 
   useEffect(() => {
     if (!videoRef.current) return;
-    console.log("Set remote stream to videoRef");
     videoRef.current.srcObject = remoteStream;
   }, [remoteStream]);
 
   useEffect(() => {
     peerConnection.addEventListener("icecandidate", (event) => {
       if (!event.candidate) {
-        console.log("Got final candidate!");
         return;
       }
 
@@ -216,27 +219,6 @@ export const RTCCall = (props: Props) => {
           iceCandidate: data,
         },
       });
-      console.log("!!!! Got candidate: ", data);
-    });
-
-    peerConnection.addEventListener("icegatheringstatechange", () => {
-      console.log(
-        `ICE gathering state changed: ${peerConnection.iceGatheringState}`
-      );
-    });
-
-    peerConnection.addEventListener("connectionstatechange", () => {
-      console.log(`Connection state change: ${peerConnection.connectionState}`);
-    });
-
-    peerConnection.addEventListener("signalingstatechange", () => {
-      console.log(`Signaling state change: ${peerConnection.signalingState}`);
-    });
-
-    peerConnection.addEventListener("iceconnectionstatechange ", () => {
-      console.log(
-        `ICE connection state change: ${peerConnection.iceConnectionState}`
-      );
     });
   }, []);
 
