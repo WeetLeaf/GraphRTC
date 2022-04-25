@@ -1,5 +1,5 @@
-import { FileUpload } from 'graphql-upload';
-import { HttpContext, HttpContextWithUser } from './context';
+import { FileUpload } from "graphql-upload";
+import { HttpContext, HttpContextWithUser } from "./context";
 
 export type ShemaBuilderOptions = {
   Context: HttpContext;
@@ -19,15 +19,9 @@ export type ShemaBuilderOptions = {
   };
   AuthScopes: {
     isAuthenticated: boolean;
-    isAdmin: boolean;
-    isPatient: boolean;
-    isPhysio: boolean;
   };
   AuthContexts: {
     isAuthenticated: HttpContextWithUser;
-    isAdmin: HttpContextWithUser;
-    isPatient: HttpContextWithUser;
-    isPhysio: HttpContextWithUser;
   };
   DefaultInputFieldRequiredness: true;
 };

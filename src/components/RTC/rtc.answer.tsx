@@ -162,7 +162,7 @@ export const RTCAnswer = (props: Props) => {
           roomUuid: query.uuid as string,
           answer: {
             sdp: answer.sdp,
-            type: mapTypeOffer(answer.type),
+            type: mapTypeOffer(answer.type!),
           },
         },
       });

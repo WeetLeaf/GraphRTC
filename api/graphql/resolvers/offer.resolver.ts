@@ -21,7 +21,7 @@ export const OfferInput = builder.inputType("OfferInput", {
 
 builder.objectType(OfferObject, {
   fields: (t) => ({
-    type: t.expose("type", { type: RTCSdpTypeEnum }),
+    type: t.expose("type", { type: RTCSdpTypeEnum as any }),
     sdp: t.exposeString("sdp", { nullable: true }),
   }),
 });

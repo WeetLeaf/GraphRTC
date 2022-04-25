@@ -1,12 +1,10 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import { CustomPubSub } from "../../utils/pubsub.utils";
-import { rooms } from "../services/cache.service";
 
 export type IncomingNextMessage = IncomingMessage;
 
 type GenericContext = {
   pubsub: CustomPubSub;
-  rooms: typeof rooms;
 };
 
 export type HttpContext = {
@@ -14,6 +12,7 @@ export type HttpContext = {
   res: ServerResponse;
 } & GenericContext;
 
+// TODO: Change when user is implemented
 export type HttpContextWithUser = HttpContext;
 export type SubscriptionsContext = GenericContext;
 

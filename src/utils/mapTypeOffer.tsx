@@ -1,6 +1,5 @@
 import { RtcSdpType } from "../__generated__/grahql";
 
-
 export const mapTypeOffer = (type: RTCSdpType): RtcSdpType => {
   switch (type) {
     case "offer":
@@ -11,5 +10,7 @@ export const mapTypeOffer = (type: RTCSdpType): RtcSdpType => {
       return RtcSdpType.Pranswer;
     case "rollback":
       return RtcSdpType.Rollback;
+    default:
+      throw new Error("What are you doing ????");
   }
 };

@@ -191,7 +191,7 @@ export const RTCCall = (props: Props) => {
       setAnswerListener(offer);
       sendOffer({
         variables: {
-          offer: { type: mapTypeOffer(offer.type), sdp: offer.sdp },
+          offer: { type: mapTypeOffer(offer.type!), sdp: offer.sdp },
           room: query.uuid as string,
           user: props.userUuid,
         },
