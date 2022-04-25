@@ -34,7 +34,7 @@ The callee send an answer to the caller.
 
 Then they both exchange the candidates to connect the two peers.
 
-## TODO
+## TODO
 
 - Rewrite the server in GO
 - Manage devices like mute and unmute
@@ -43,7 +43,7 @@ Then they both exchange the candidates to connect the two peers.
 - Add a chat
 - Add a user name when you join the room
 
-## Installation
+## Installation
 
 ### Prod
 
