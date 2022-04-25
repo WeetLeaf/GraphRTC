@@ -1,8 +1,7 @@
 import {
   gql,
   useApolloClient,
-  useMutation,
-  useSubscription,
+  useMutation
 } from "@apollo/client";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -17,7 +16,7 @@ import {
   SubscribeToAnwserSubscription,
   SubscribeToAnwserSubscriptionVariables,
   SubscribeToCalleeCandidateSubscription,
-  SubscribeToCalleeCandidateSubscriptionVariables,
+  SubscribeToCalleeCandidateSubscriptionVariables
 } from "../../__generated__/grahql";
 import { RTCCommonType } from "./type";
 
