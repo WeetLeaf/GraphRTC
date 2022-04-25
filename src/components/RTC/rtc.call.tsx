@@ -99,29 +99,40 @@ export const RTCCall = (props: Props) => {
     SendCallerCandidateMutationVariables
   >(SEND_CANDIDATE);
 
-  const { data: onCallerCandidate } = useSubscription<
-    SubscribeToCalleeCandidateSubscription,
-    SubscribeToCalleeCandidateSubscriptionVariables
-  >(SUB_TO_CANDIDATE);
+  const setCandidateListener = useCallback(
+    (offer: RTCSessionDescriptionInit) => {
+      const subscription = apollo.subscribe<
+        SubscribeToCalleeCandidateSubscription,
+        SubscribeToCalleeCandidateSubscriptionVariables
+      >({
+        query: SUB_TO_CANDIDATE,
+        variables: {
+          offerSdp: offer.sdp!,
+          roomUuid: query.uuid as string,
+        },
+      });
 
-  useEffect(() => {
-    const data = onCallerCandidate?.subscribeToCandidate;
-    if (!data) return;
+      const listener = subscription.subscribe(async (res) => {
+        const data = res.data?.subscribeToCandidate;
+        if (!data) return;
 
-    (async () => {
-      await peerConnection.addIceCandidate(
-        new RTCIceCandidate({
-          candidate: data.candidate ?? undefined,
-          sdpMLineIndex: data.sdpMLineIndex ?? undefined,
-          sdpMid: data.sdpMid ?? undefined,
-          usernameFragment: data.usernameFragment ?? undefined,
-        })
-      );
-    })();
-  }, [onCallerCandidate?.subscribeToCandidate]);
+        await peerConnection.addIceCandidate(
+          new RTCIceCandidate({
+            candidate: data.candidate ?? undefined,
+            sdpMLineIndex: data.sdpMLineIndex ?? undefined,
+            sdpMid: data.sdpMid ?? undefined,
+            usernameFragment: data.usernameFragment ?? undefined,
+          })
+        );
+      });
+      return () => {
+        listener.unsubscribe();
+      };
+    },
+    []
+  );
 
-  const setAnswerListener = useCallback(() => {
-    const { current: offer } = offerRef;
+  const setAnswerListener = useCallback((offer: RTCSessionDescriptionInit) => {
     if (!offer) return;
 
     if (!offer.sdp) {
@@ -141,7 +152,6 @@ export const RTCCall = (props: Props) => {
 
     const listener = subscription.subscribe(({ data }) => {
       if (!data) return;
-      console.log("Received answer: ", data.subscribeToAnswers);
       listener.unsubscribe();
     });
 
@@ -153,14 +163,13 @@ export const RTCCall = (props: Props) => {
   useEffect(() => {
     if (!localStream) return;
     localStream.getTracks().forEach((track) => {
-      console.log("CALL - Add a track to the localStream:");
       peerConnection.addTrack(track, localStream);
     });
   }, [localStream]);
 
   useEffect(() => {
-    console.log("listen for tracks");
     peerConnection.addEventListener("track", (event) => {
+      //TODO: Why i never get the renote track ?
       console.log("Got remote track:", event.streams[0]);
       event.streams[0].getTracks().forEach((track) => {
         console.log("CALL - Add a track to the remoteStream:", track);
@@ -174,7 +183,8 @@ export const RTCCall = (props: Props) => {
       let offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
       offerRef.current = offer;
-      setAnswerListener();
+      setCandidateListener(offer);
+      setAnswerListener(offer);
       sendOffer({
         variables: {
           offer: { type: mapTypeOffer(offer.type), sdp: offer.sdp },

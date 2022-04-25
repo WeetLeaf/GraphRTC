@@ -3,7 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import next from "next";
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3001;
 
 const isProd = process.env.NODE_ENV === "production";
 console.log("Starting server in " + (!isProd ? "dev" : "prod") + " mode");

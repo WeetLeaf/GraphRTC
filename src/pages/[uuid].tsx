@@ -2,12 +2,16 @@ import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import { RTCAnswer } from "../components/RTC/rtc.answer";
 import { RTCCall } from "../components/RTC/rtc.call";
-import { useRTC } from "../contexts/rtc.context";
+import { RTCContextProvider, useRTC } from "../contexts/rtc.context";
 import { useRoom } from "../hooks/useRoom";
 
 export default function Room() {
   const { isReady } = useRouter();
-  return isReady ? <RoomReady /> : null;
+  return isReady ? (
+    <RTCContextProvider>
+      <RoomReady />
+    </RTCContextProvider>
+  ) : null;
 }
 
 const RoomReady = () => {
