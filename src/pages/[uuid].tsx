@@ -50,11 +50,25 @@ const RoomReady = () => {
         />
       )}
 
-      {rtcAnswers.map((answer, index) => (
-        <RTCAnswer offer={answer} key={answer.sdp ?? index} />
+      {rtcAnswers.map((answer) => (
+        <RTCAnswer
+          offer={answer}
+          key={answer.sdp!}
+          onDisconnect={() => {
+            setRtcAnswers((rtcAnswers) =>
+              rtcAnswers.filter((answ) => answ.sdp! !== answer.sdp!)
+            );
+          }}
+        />
       ))}
       {rtcOffers.map((user) => (
-        <RTCCall userUuid={user} key={user} />
+        <RTCCall
+          userUuid={user}
+          key={user}
+          onDisconnect={() => {
+            setRtcOffers((offers) => offers.filter((offer) => offer !== user));
+          }}
+        />
       ))}
     </div>
   );

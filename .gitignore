@@ -33,3 +33,4 @@ yarn-error.log*
 .vercel
 
 tsconfig.tsbuildinfo
+node_modules

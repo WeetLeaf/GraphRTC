@@ -1,3 +1,3 @@
 export type RTCCommonType = {
-  userUuid: string;
+  onDisconnect: () => void;
 };

@@ -12,8 +12,9 @@ import {
   SubscribeToCallerCandidateSubscription,
   SubscribeToCallerCandidateSubscriptionVariables,
 } from "../../__generated__/grahql";
+import { RTCCommonType } from "./type";
 
-type Props = {
+type Props = RTCCommonType & {
   offer: RTCSessionDescriptionInit;
 };
 
@@ -167,6 +168,14 @@ export const RTCAnswer = (props: Props) => {
         },
       });
     })();
+  }, []);
+
+  useEffect(() => {
+    peerConnection.addEventListener("iceconnectionstatechange", (event) => {
+      if (peerConnection.iceConnectionState === "disconnected") {
+        props.onDisconnect();
+      }
+    });
   }, []);
 
   return (

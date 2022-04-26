@@ -1,8 +1,4 @@
-import {
-  gql,
-  useApolloClient,
-  useMutation
-} from "@apollo/client";
+import { gql, useApolloClient, useMutation } from "@apollo/client";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { configuration } from "../../config/rtc.config";
@@ -16,11 +12,13 @@ import {
   SubscribeToAnwserSubscription,
   SubscribeToAnwserSubscriptionVariables,
   SubscribeToCalleeCandidateSubscription,
-  SubscribeToCalleeCandidateSubscriptionVariables
+  SubscribeToCalleeCandidateSubscriptionVariables,
 } from "../../__generated__/grahql";
 import { RTCCommonType } from "./type";
 
-type Props = RTCCommonType;
+type Props = RTCCommonType & {
+  userUuid: string;
+};
 
 const SEND_OFFER = gql`
   mutation SendOffer($offer: OfferInput!, $room: String!, $user: String!) {
@@ -218,6 +216,14 @@ export const RTCCall = (props: Props) => {
           iceCandidate: data,
         },
       });
+    });
+  }, []);
+
+  useEffect(() => {
+    peerConnection.addEventListener("iceconnectionstatechange", (event) => {
+      if (peerConnection.iceConnectionState === "disconnected") {
+        props.onDisconnect();
+      }
     });
   }, []);
 
