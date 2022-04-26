@@ -109,7 +109,7 @@ export const RTCCall = (props: Props) => {
         },
       });
 
-      const listener = subscription.subscribe(async (res) => {
+      subscription.subscribe(async (res) => {
         const data = res.data?.subscribeToCandidate;
         if (!data) return;
 
@@ -122,9 +122,6 @@ export const RTCCall = (props: Props) => {
           })
         );
       });
-      return () => {
-        listener.unsubscribe();
-      };
     },
     []
   );
@@ -159,10 +156,6 @@ export const RTCCall = (props: Props) => {
 
       listener.unsubscribe();
     });
-
-    return () => {
-      listener.unsubscribe();
-    };
   }, []);
 
   useEffect(() => {
@@ -187,13 +180,15 @@ export const RTCCall = (props: Props) => {
       offerRef.current = offer;
       setCandidateListener(offer);
       setAnswerListener(offer);
-      sendOffer({
-        variables: {
-          offer: { type: mapTypeOffer(offer.type!), sdp: offer.sdp },
-          room: query.uuid as string,
-          user: props.userUuid,
-        },
-      });
+      setTimeout(() => {
+        sendOffer({
+          variables: {
+            offer: { type: mapTypeOffer(offer.type!), sdp: offer.sdp },
+            room: query.uuid as string,
+            user: props.userUuid,
+          },
+        });
+      }, 1000);
     })();
   }, []);
 
@@ -229,7 +224,13 @@ export const RTCCall = (props: Props) => {
 
   return (
     <div>
-      <video ref={videoRef} autoPlay playsInline width={200} height={200} />
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        height={200}
+        className="bg-indigo-500"
+      />
       rtc.call
     </div>
   );

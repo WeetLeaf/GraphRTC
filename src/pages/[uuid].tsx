@@ -36,9 +36,7 @@ const RoomReady = () => {
     },
   });
   return (
-    <div>
-      <div>{identity}</div>
-
+    <div className="grid grid-cols-3">
       {localStream && (
         <video
           muted

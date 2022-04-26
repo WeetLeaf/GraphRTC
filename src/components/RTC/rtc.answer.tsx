@@ -184,7 +184,6 @@ export const RTCAnswer = (props: Props) => {
         ref={videoRef}
         autoPlay
         playsInline
-        width={200}
         height={200}
         className="bg-red-300"
       />
