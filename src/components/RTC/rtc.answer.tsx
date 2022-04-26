@@ -94,6 +94,7 @@ export const RTCAnswer = (props: Props) => {
   });
 
   useEffect(() => {
+    if (!peerConnection.remoteDescription) return;
     const data = onCallerCandidate?.subscribeToCandidate;
     if (!data) return;
 

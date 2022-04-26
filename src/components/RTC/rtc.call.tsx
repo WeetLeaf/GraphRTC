@@ -110,6 +110,7 @@ export const RTCCall = (props: Props) => {
       });
 
       subscription.subscribe(async (res) => {
+        if (!peerConnection.remoteDescription) return;
         const data = res.data?.subscribeToCandidate;
         if (!data) return;
 
