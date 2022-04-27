@@ -1,5 +1,9 @@
 # GraphRTC
 
+**For some reason the WebRtc is not working on IOS.**
+
+## https://graphrtc.herokuapp.com/test
+
 <span style="color:crimson">
 The server is not doing anything nor storing anything, we just pass the informations beetween the particiapants
 </span>
