@@ -1,6 +1,7 @@
 import { gql, useMutation, useSubscription } from "@apollo/client";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
+import { useDebounce } from "react-use";
 import { configuration } from "../../config/rtc.config";
 import { useRTC } from "../../contexts/rtc.context";
 import { mapTypeOffer } from "../../utils/mapTypeOffer";
@@ -30,13 +31,13 @@ const SEND_ANSWER = gql`
 
 const SEND_CANDIDATE = gql`
   mutation SendCalleeCandidate(
-    $iceCandidate: CandidateInput!
+    $iceCandidate: [CandidateInput!]!
     $roomUuid: String!
     $offerSdp: String!
   ) {
-    addIceCandidate(
+    addIceCandidates(
       candidateType: CALLEE
-      iceCandidate: $iceCandidate
+      iceCandidates: $iceCandidate
       offerSdp: $offerSdp
       roomUuid: $roomUuid
     )
@@ -67,6 +68,8 @@ export const RTCAnswer = (props: Props) => {
     new RTCPeerConnection(configuration)
   );
 
+  const [candidateBulk, setCandidateBulk] = useState<RTCIceCandidateInit[]>([]);
+
   const { localStream } = useRTC();
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -80,6 +83,21 @@ export const RTCAnswer = (props: Props) => {
     SendCalleeCandidateMutation,
     SendCalleeCandidateMutationVariables
   >(SEND_CANDIDATE);
+
+  useDebounce(
+    () => {
+      if (!!!candidateBulk.length) return;
+      sendCandidate({
+        variables: {
+          roomUuid: query.uuid as string,
+          offerSdp: props.offer.sdp!,
+          iceCandidate: candidateBulk,
+        },
+      });
+    },
+    500,
+    [candidateBulk]
+  );
 
   const [remoteStream] = useState(new MediaStream());
 
@@ -95,18 +113,20 @@ export const RTCAnswer = (props: Props) => {
 
   useEffect(() => {
     if (!peerConnection.remoteDescription) return;
-    const data = onCallerCandidate?.subscribeToCandidate;
-    if (!data) return;
+    const datas = onCallerCandidate?.subscribeToCandidate;
+    if (!datas) return;
 
     (async () => {
-      await peerConnection.addIceCandidate(
-        new RTCIceCandidate({
-          candidate: data.candidate ?? undefined,
-          sdpMLineIndex: data.sdpMLineIndex ?? undefined,
-          sdpMid: data.sdpMid ?? undefined,
-          usernameFragment: data.usernameFragment ?? undefined,
-        })
-      );
+      for (const data of datas) {
+        await peerConnection.addIceCandidate(
+          new RTCIceCandidate({
+            candidate: data.candidate ?? undefined,
+            sdpMLineIndex: data.sdpMLineIndex ?? undefined,
+            sdpMid: data.sdpMid ?? undefined,
+            usernameFragment: data.usernameFragment ?? undefined,
+          })
+        );
+      }
     })();
   }, [onCallerCandidate?.subscribeToCandidate]);
 
@@ -120,14 +140,9 @@ export const RTCAnswer = (props: Props) => {
       if (!event.candidate) {
         return;
       }
+
       const data = event.candidate.toJSON();
-      sendCandidate({
-        variables: {
-          roomUuid: query.uuid as string,
-          offerSdp: props.offer.sdp!,
-          iceCandidate: data,
-        },
-      });
+      setCandidateBulk((prev) => [...prev, data]);
     });
   }, []);
 
@@ -142,7 +157,12 @@ export const RTCAnswer = (props: Props) => {
   useEffect(() => {
     if (!localStream) return;
     localStream.getTracks().forEach((track) => {
-      peerConnection.addTrack(track, localStream);
+      try {
+        // Prevent errorn on HMR
+        peerConnection.addTrack(track, localStream);
+      } catch (e) {
+        console.error(e);
+      }
     });
   }, [localStream]);
 
@@ -172,23 +192,12 @@ export const RTCAnswer = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    peerConnection.addEventListener("iceconnectionstatechange", (event) => {
+    peerConnection.addEventListener("iceconnectionstatechange", () => {
       if (peerConnection.iceConnectionState === "disconnected") {
         props.onDisconnect();
       }
     });
   }, []);
 
-  return (
-    <div>
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        height={200}
-        className="bg-red-300"
-      />
-      rtc.answer
-    </div>
-  );
+  return <video ref={videoRef} autoPlay playsInline className="bg-gray-200" />;
 };

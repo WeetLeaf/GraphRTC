@@ -128,13 +128,13 @@ builder.subscriptionField("subscribeToAnswers", (t) =>
   })
 );
 
-builder.mutationField("addIceCandidate", (t) =>
+builder.mutationField("addIceCandidates", (t) =>
   t.boolean({
     args: {
       roomUuid: t.arg.string(),
       offerSdp: t.arg.string(),
-      iceCandidate: t.arg({
-        type: CandidateInput,
+      iceCandidates: t.arg({
+        type: [CandidateInput],
       }),
       candidateType: t.arg({
         type: CandidateType,
@@ -142,17 +142,17 @@ builder.mutationField("addIceCandidate", (t) =>
     },
     resolve: async (
       _root,
-      { roomUuid, offerSdp, iceCandidate, candidateType },
+      { roomUuid, offerSdp, iceCandidates, candidateType },
       { pubsub }
     ) => {
-      await pubsub.publish<Candidate>(
+      await pubsub.publish<Candidate[]>(
         `${roomUuid}:${offerSdp}:${candidateType}`,
-        {
+        iceCandidates.map((iceCandidate) => ({
           candidate: iceCandidate.candidate ?? undefined,
           sdpMLineIndex: iceCandidate.sdpMLineIndex ?? undefined,
           sdpMid: iceCandidate.sdpMid ?? undefined,
           usernameFragment: iceCandidate.usernameFragment ?? undefined,
-        }
+        }))
       );
       return true;
     },
@@ -161,7 +161,7 @@ builder.mutationField("addIceCandidate", (t) =>
 
 builder.subscriptionField("subscribeToCandidate", (t) =>
   t.field({
-    type: CandidateObject,
+    type: [CandidateObject],
     args: {
       roomUuid: t.arg.string(),
       offerSdp: t.arg.string(),
@@ -170,11 +170,11 @@ builder.subscriptionField("subscribeToCandidate", (t) =>
       }),
     },
     subscribe: (_, { roomUuid, offerSdp, candidateType }, { pubsub }) => {
-      return pubsub.asyncIterator<Candidate>(
+      return pubsub.asyncIterator<Candidate[]>(
         `${roomUuid}:${offerSdp}:${candidateType}`
       );
     },
-    resolve: (payload: Candidate) => {
+    resolve: (payload: Candidate[]) => {
       return payload;
     },
   })

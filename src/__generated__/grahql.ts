@@ -35,7 +35,7 @@ export enum CandidateType {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addIceCandidate: Scalars['Boolean'];
+  addIceCandidates: Scalars['Boolean'];
   createRoom: Room;
   sendOfferAnswer: Scalars['Boolean'];
   sendUserOffer: Scalars['Boolean'];
@@ -47,9 +47,9 @@ export type Mutation = {
 };
 
 
-export type MutationAddIceCandidateArgs = {
+export type MutationAddIceCandidatesArgs = {
   candidateType: CandidateType;
-  iceCandidate: CandidateInput;
+  iceCandidates: Array<CandidateInput>;
   offerSdp: Scalars['String'];
   roomUuid: Scalars['String'];
 };
@@ -129,7 +129,7 @@ export type Subscription = {
    */
   serverStatus: Scalars['Float'];
   subscribeToAnswers: Offer;
-  subscribeToCandidate: Candidate;
+  subscribeToCandidate: Array<Candidate>;
   subscribeToOffers: Offer;
   subscribeToParticipants: Participant;
 };
@@ -168,13 +168,13 @@ export type SendAnswerMutationVariables = Exact<{
 export type SendAnswerMutation = { __typename?: 'Mutation', sendOfferAnswer: boolean };
 
 export type SendCalleeCandidateMutationVariables = Exact<{
-  iceCandidate: CandidateInput;
+  iceCandidate: Array<CandidateInput> | CandidateInput;
   roomUuid: Scalars['String'];
   offerSdp: Scalars['String'];
 }>;
 
 
-export type SendCalleeCandidateMutation = { __typename?: 'Mutation', addIceCandidate: boolean };
+export type SendCalleeCandidateMutation = { __typename?: 'Mutation', addIceCandidates: boolean };
 
 export type SubscribeToCallerCandidateSubscriptionVariables = Exact<{
   offerSdp: Scalars['String'];
@@ -182,7 +182,7 @@ export type SubscribeToCallerCandidateSubscriptionVariables = Exact<{
 }>;
 
 
-export type SubscribeToCallerCandidateSubscription = { __typename?: 'Subscription', subscribeToCandidate: { __typename?: 'Candidate', candidate?: string | null, sdpMLineIndex?: number | null, sdpMid?: string | null, usernameFragment?: string | null } };
+export type SubscribeToCallerCandidateSubscription = { __typename?: 'Subscription', subscribeToCandidate: Array<{ __typename?: 'Candidate', candidate?: string | null, sdpMLineIndex?: number | null, sdpMid?: string | null, usernameFragment?: string | null }> };
 
 export type SendOfferMutationVariables = Exact<{
   offer: OfferInput;
@@ -202,13 +202,13 @@ export type SubscribeToAnwserSubscriptionVariables = Exact<{
 export type SubscribeToAnwserSubscription = { __typename?: 'Subscription', subscribeToAnswers: { __typename?: 'Offer', sdp?: string | null, type: RtcSdpType } };
 
 export type SendCallerCandidateMutationVariables = Exact<{
-  iceCandidate: CandidateInput;
+  iceCandidate: Array<CandidateInput> | CandidateInput;
   roomUuid: Scalars['String'];
   offerSdp: Scalars['String'];
 }>;
 
 
-export type SendCallerCandidateMutation = { __typename?: 'Mutation', addIceCandidate: boolean };
+export type SendCallerCandidateMutation = { __typename?: 'Mutation', addIceCandidates: boolean };
 
 export type SubscribeToCalleeCandidateSubscriptionVariables = Exact<{
   offerSdp: Scalars['String'];
@@ -216,7 +216,7 @@ export type SubscribeToCalleeCandidateSubscriptionVariables = Exact<{
 }>;
 
 
-export type SubscribeToCalleeCandidateSubscription = { __typename?: 'Subscription', subscribeToCandidate: { __typename?: 'Candidate', candidate?: string | null, sdpMLineIndex?: number | null, sdpMid?: string | null, usernameFragment?: string | null } };
+export type SubscribeToCalleeCandidateSubscription = { __typename?: 'Subscription', subscribeToCandidate: Array<{ __typename?: 'Candidate', candidate?: string | null, sdpMLineIndex?: number | null, sdpMid?: string | null, usernameFragment?: string | null }> };
 
 export type CreateRoomMutationVariables = Exact<{ [key: string]: never; }>;
 

@@ -15,7 +15,7 @@ export default function Room() {
 }
 
 const RoomReady = () => {
-  const { identity, localStream } = useRTC();
+  const { localStream } = useRTC();
 
   const [rtcOffers, setRtcOffers] = useState<string[]>([]);
   const [rtcAnswers, setRtcAnswers] = useState<RTCSessionDescriptionInit[]>([]);
@@ -36,15 +36,14 @@ const RoomReady = () => {
     },
   });
   return (
-    <div className="grid grid-cols-3">
+    <div className="grid grid-cols-3 gap-1 p-4">
       {localStream && (
         <video
           muted
           autoPlay
           playsInline
           ref={localStreamRef}
-          height={100}
-          width={100}
+          className="bg-gray-300 ring w-full"
         />
       )}
 
