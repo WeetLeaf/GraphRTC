@@ -25,11 +25,10 @@ async function startApolloServer() {
 
     // Redirect to https in Prod
     app.use((req, res, next) => {
-      if (!req.secure) {
-        res.redirect(301, "https://" + req.headers.host + req.url);
-      } else {
-        next();
+      if (req.headers["x-forwarded-proto"] !== "https") {
+        return res.redirect(301, "https://" + req.headers.host + req.url);
       }
+      return next();
     });
 
     app.all("*", (req, res) => {

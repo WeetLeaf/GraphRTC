@@ -8,6 +8,9 @@ let apolloClient: ApolloClient<any> = new ApolloClient({
 });
 
 if (typeof window !== "undefined") {
+  console.info("Initializing Apollo client");
+  console.info("GraphQL endpoint:", process.env.NEXT_PUBLIC_API_ENDPOINT);
+
   const wsLink = new GraphQLWsLink(
     createClient({
       url: process.env.NEXT_PUBLIC_API_WEBSOCKET_ENDPOINT,
