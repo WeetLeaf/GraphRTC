@@ -17,11 +17,18 @@ enum CandidateType {
   CALLER
 }
 
+type ChatMessage {
+  message: String!
+  roomUuid: String!
+  sender: String!
+}
+
 scalar Date
 
 type Mutation {
   addIceCandidates(candidateType: CandidateType!, iceCandidates: [CandidateInput!]!, offerSdp: String!, roomUuid: String!): Boolean!
   createRoom(name: String!): Room!
+  sendMessage(message: String!, roomUuid: String!, sender: String!): String!
   sendOfferAnswer(answer: OfferInput!, offerSdp: String!, roomUuid: String!): Boolean!
   sendUserOffer(offer: OfferInput!, roomUuid: String!, userUuid: String!): Boolean!
 
@@ -80,6 +87,7 @@ type Subscription {
     roomUuid: String!
   ): Offer!
   subscribeToCandidate(candidateType: CandidateType!, offerSdp: String!, roomUuid: String!): [Candidate!]!
+  subscribeToMessages(roomUuid: String!): ChatMessage!
   subscribeToOffers(
     """Room uuid"""
     roomUuid: String!

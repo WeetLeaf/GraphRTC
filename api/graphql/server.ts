@@ -6,7 +6,7 @@ import { ApolloServer } from "apollo-server-express";
 import { Application } from "express";
 import { execute, subscribe } from "graphql";
 import { graphqlUploadExpress } from "graphql-upload";
-import { useServer } from "graphql-ws/lib/use/ws";
+import { useServer as wsUseServer } from "graphql-ws/lib/use/ws";
 import { Server } from "http";
 import { WebSocketServer } from "ws";
 import { CustomPubSub } from "../utils/pubsub.utils";
@@ -26,7 +26,7 @@ export async function configGraphQLServer(
     path: "/api/graphql",
   });
 
-  const serverCleanup = useServer(
+  const serverCleanup = wsUseServer(
     {
       schema,
       execute,

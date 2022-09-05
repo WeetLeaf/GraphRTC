@@ -33,10 +33,18 @@ export enum CandidateType {
   Caller = 'CALLER'
 }
 
+export type ChatMessage = {
+  __typename?: 'ChatMessage';
+  message: Scalars['String'];
+  roomUuid: Scalars['String'];
+  sender: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addIceCandidates: Scalars['Boolean'];
   createRoom: Room;
+  sendMessage: Scalars['String'];
   sendOfferAnswer: Scalars['Boolean'];
   sendUserOffer: Scalars['Boolean'];
   /**
@@ -57,6 +65,13 @@ export type MutationAddIceCandidatesArgs = {
 
 export type MutationCreateRoomArgs = {
   name: Scalars['String'];
+};
+
+
+export type MutationSendMessageArgs = {
+  message: Scalars['String'];
+  roomUuid: Scalars['String'];
+  sender: Scalars['String'];
 };
 
 
@@ -130,6 +145,7 @@ export type Subscription = {
   serverStatus: Scalars['Float'];
   subscribeToAnswers: Offer;
   subscribeToCandidate: Array<Candidate>;
+  subscribeToMessages: ChatMessage;
   subscribeToOffers: Offer;
   subscribeToParticipants: Participant;
 };
@@ -144,6 +160,11 @@ export type SubscriptionSubscribeToAnswersArgs = {
 export type SubscriptionSubscribeToCandidateArgs = {
   candidateType: CandidateType;
   offerSdp: Scalars['String'];
+  roomUuid: Scalars['String'];
+};
+
+
+export type SubscriptionSubscribeToMessagesArgs = {
   roomUuid: Scalars['String'];
 };
 
@@ -222,6 +243,22 @@ export type CreateRoomMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CreateRoomMutation = { __typename?: 'Mutation', room: { __typename?: 'Room', uuid: string } };
+
+export type OnMessageSubscriptionVariables = Exact<{
+  roomUuid: Scalars['String'];
+}>;
+
+
+export type OnMessageSubscription = { __typename?: 'Subscription', message: { __typename?: 'ChatMessage', message: string, roomUuid: string, sender: string } };
+
+export type SendMessageMutationVariables = Exact<{
+  message: Scalars['String'];
+  roomUuid: Scalars['String'];
+  sender: Scalars['String'];
+}>;
+
+
+export type SendMessageMutation = { __typename?: 'Mutation', sendMessage: string };
 
 export type OnNewParticipantSubscriptionVariables = Exact<{
   roomId: Scalars['String'];
